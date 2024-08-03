@@ -31,7 +31,8 @@ Start minikube cluster
 ```bash
   minikube start --driver=docker --force
 ```
-Install kubectl to interact with cluster
+## 2. Install kubectl to interact with cluster
+use classic snap to install kubectl
 ```bash
   snap install kubectl --classic
 ```
@@ -39,5 +40,10 @@ Verify the installation
 ```bash
   kubectl cluster-info
   kubectl get pods -A
+```
+## 3. Install Helm
+use classic snap to install helm
+```bash
+  snap install helm --classic
 ```
 

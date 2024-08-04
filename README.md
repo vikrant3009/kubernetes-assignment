@@ -393,7 +393,7 @@ If you encounter any issues, try the following troubleshooting steps:
 3. **Check Ingress Controller Logs**:
     If you are using an NGINX ingress controller, check its logs for any errors:
     ```sh
-    kubectl logs <nginx-ingress-controller-pod> -n <ingress-controller-namespace>
+    kubectl logs <nginx-ingress-controller-pod> -n ingress-nginx
     ```
 4. **Validate YAML Files**:
     Ensure that the YAML files are correctly formatted and do not contain any syntax errors. You can use tools like `kubectl apply --dry-run=client -f <file>` to validate the files.

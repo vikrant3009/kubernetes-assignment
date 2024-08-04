@@ -296,6 +296,62 @@ Visit `http://www.devopsbyvikrant.com` in your browser to see the "Hello World" 
 ![image](https://github.com/user-attachments/assets/da54cd20-62dd-408d-af4e-8f9a20e024bb)
 
 
+-------------------------------------------------
+
+## Part IV: Setting up ssl tls for Hello World Deployment
+
+To implement TLS termination at the NGINX ingress using a self-signed certificate, follow these steps:
+
+### 1. Create a self-signed certificate and key
+
+Generate a self-signed certificate and key using OpenSSL:
+
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=www.devopsbyvikrant.com/O=vikrant"
+```
+This command creates tls.crt and tls.key files.
+
+### 2. Create a Kubernetes secret to store the certificate and key
+Create a Kubernetes secret using the generated certificate and key:
+```bash
+kubectl create secret tls hello-world-tls --cert=tls.crt --key=tls.key -n hello-world
+```
+
+### 3. Update the Ingress yaml 
+
+The `ingress-tls-hello-world.yaml` file defines a Kubernetes Ingress to route external traffic to the "Hello World" application.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: hello-world-ingress
+  namespace: hello-world
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: www.devopsbyvikrant.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hello-world-svc
+            port:
+              number: 80
+```
+### 4. Apply changes to ingress 
+    ```bash
+    kubectl apply -f ingress-tls-hello-world.yaml
+    ```
+### 5. Verify using browser or curl
+    ```bash
+    curl -k https://www.devopsbyvikrant.com
+    ```
+
 ### Cleanup
 
 To remove the deployed resources, you can delete them using the following commands:

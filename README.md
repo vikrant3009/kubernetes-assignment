@@ -1,4 +1,4 @@
-# Kubernete 101 by Vikrant- Minikube setup, Ingress Controller Setup and Application Deployment.
+# Kubernete 101 by Vikrant - Minikube setup, Ingress Controller Setup and Application Deployment.
 ## Part I: Kubernetes Cluster Setup - Installation of Minikube, Kubectl and Helm
 
 This guide explains how to set up a Kubernetes cluster using Minikube, how to install `kubectl` to interact with the cluster, and how to install Helm for managing Kubernetes applications.

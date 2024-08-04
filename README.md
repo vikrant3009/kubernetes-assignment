@@ -75,12 +75,13 @@ snap install kubectl --classic
 
 This command installs `kubectl` using Snap with the `--classic` option, which gives it full access to system resources. `kubectl` is the command-line tool for interacting with Kubernetes clusters.
 
-### 2. Verify the Installation
+### 2. Verify the kubectl Installation
 
 ```bash
 kubectl cluster-info
-kubectl get pods -A
 ```
+![image](https://github.com/user-attachments/assets/f9403856-4e18-403a-b955-59c3a85ca9a8)
+
 
 These commands verify that `kubectl` is installed correctly and can communicate with the Kubernetes cluster. `kubectl cluster-info` displays information about the cluster, and `kubectl get pods -A` lists all the pods in all namespaces.
 
@@ -91,8 +92,13 @@ These commands verify that `kubectl` is installed correctly and can communicate 
 ```bash
 snap install helm --classic
 ```
-
 This command installs Helm using Snap with the `--classic` option. Helm is a package manager for Kubernetes, which helps in deploying and managing applications on the cluster.
+
+### 2. Verify Helm installation
+```bash
+helm version
+```
+![image](https://github.com/user-attachments/assets/59282092-094e-437e-8e26-bfd959a124f7)
 
 ## Conclusion
 

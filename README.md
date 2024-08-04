@@ -331,6 +331,10 @@ metadata:
   namespace: hello-world
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - www.devopsbyvikrant.com
+    secretName: hello-world-tls
   rules:
   - host: www.devopsbyvikrant.com
     http:
@@ -351,6 +355,8 @@ spec:
     ```bash
     curl -k https://www.devopsbyvikrant.com
     ```
+  ![image](https://github.com/user-attachments/assets/090f9433-170d-4846-8656-8349d6c2346f)
+
 
 ### Cleanup
 
@@ -367,7 +373,7 @@ kubectl delete namespace hello-world
 
 If you encounter any issues, try the following troubleshooting steps:
 
-5. **DNS Issues**:
+1. **DNS Issues**:
     If you are unable to access the application via the provided hostname, ensure that the DNS settings are correctly configured and that the hostname resolves to the correct IP address.
     Follow workaround in minikube host server:
     ```sh

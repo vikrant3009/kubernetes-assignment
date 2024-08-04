@@ -46,6 +46,14 @@ This command installs or upgrades the Ingress Nginx controller using Helm. Hereâ
 - `--set controller.hostPort.enabled=true`: This enables the use of host ports for the Ingress Nginx controller, allowing it to bind to the hostâ€™s network interface.
 - `--set controller.ingressClass=nginx`: This sets the ingress class to `nginx`, which is used to differentiate between multiple ingress controllers.
 
+### 3. Verify the Nginx Ingress Controller Setup
+
+```bash
+kubectl get all -n ingress-nginx
+```
+
+![image](https://github.com/user-attachments/assets/5cfe1f18-fb53-4890-942d-852c502ddc9d)
+
 ## Conclusion
 
 By following these steps, you can successfully deploy the Ingress Nginx controller on your Kubernetes cluster using Helm. This setup provides a reliable and efficient way to manage external access to your Kubernetes services.

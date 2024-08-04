@@ -1,180 +1,99 @@
-# Kubernete 101 by Vikrant - Minikube setup, Ingress Controller Setup and Application Deployment.
-## Part I: Kubernetes Cluster Setup - Installation of Minikube, Kubectl and Helm
+# Ansible 101 by Vikrant - Create minikube cluster, deploy ingress controller and hello world application
 
-This guide explains how to set up a Kubernetes cluster using Minikube, how to install `kubectl` to interact with the cluster, and how to install Helm for managing Kubernetes applications.
 
-### Prerequisites
+This Ansible playbook sets up a Kubernetes cluster using Minikube and deploys the NGINX Ingress Controller along with a sample "Hello World" application. The playbook covers installation and configuration of necessary tools and deployment of Kubernetes resources.
 
-- Ubuntu system with sudo privileges
-- Internet connection
 
-### Step 1: Kubernetes Cluster Setup - Installation of Minikube
+## Project Structure
 
-#### 1. Update Packages
+- `roles/` - Contains the roles for different tasks.
+- `playbook.yml` - The main Ansible playbook that orchestrates the tasks.
+- `ansible.cfg` - Contains config detail
+- `inventory` - Contains inventory details
 
-```bash
-sudo apt update
+
+
+## Prerequisites
+
+Before running this playbook, ensure you have the following:
+
+- Ansible installed on your control node.
+- Access to the target nodes where Minikube will be installed.
+- Passwordless ssh connectivity between control node and target machine.
+
+## Playbook Overview
+
+The playbook performs the following tasks:
+
+1. **Installs Minikube**: Sets up Minikube on the target node.
+2. **Installs kubectl**: Installs the Kubernetes CLI tool.
+3. **Installs Helm**: Installs the Helm package manager for Kubernetes.
+4. **Deploys NGINX Ingress Controller**: Installs the NGINX Ingress Controller for managing ingress traffic.
+5. **Deploys Hello World Application**: Deploys a simple "Hello World" application to the Kubernetes cluster.
+6. **Deploys Hello World Service**: Creates a Kubernetes Service to expose the "Hello World" application.
+7. **Deploys Hello World Ingress Resource**: Sets up an Ingress resource for routing traffic to the "Hello World" application.
+8. **Sets Up TLS for Hello World**: Configures TLS certificates for secure access to the "Hello World" application.
+9. **Verifies Hello World**: Checks the deployment status and ensures the "Hello World" application is accessible.
+
+
+## Steps to Install and Run the Ansible Playbook
+
+
+### 1. Create config file `ansible.cfg`
+The playbook relies on an `ansible.cfg` configuration file. Below is an explanation of the configuration settings used:
+
+```ini
+[defaults]
+inventory = inventory
+remote_user = root
+host_key_checking = False
+
+[privilege_escalation]
+become = True
+become_method = sudo
 ```
 
-This command updates the package lists on your system to ensure you have the latest information on the newest versions of packages and their dependencies.
+**[defaults]**
 
-#### 2. Login to Root
+`inventory = inventory`: Specifies the inventory file that contains the list of hosts or nodes where the playbook will be executed. The default file name is inventory.
 
-```bash
-sudo su -
+`remote_user = root`: Defines the user account to use when connecting to remote hosts. In this case, it is set to root.
+
+`host_key_checking = False`: Disables SSH host key checking to avoid prompts for new host keys. This is useful for automated environments but should be used with caution.
+
+
+**[privilege_escalation]**
+
+`become = True`: Enables privilege escalation, allowing Ansible to execute tasks with elevated privileges (e.g., sudo).
+
+`become_method = sudo`: Specifies the method used for privilege escalation. Here, sudo is used to run commands as a superuser.
+
+
+### 2. Create Inventory
+
+The playbook relies on an `ansible.cfg` configuration file. Below is an explanation of the configuration settings used:
+
+**`inventory`**
+
+```ini
+[all]
+192.168.1.15 ingress_host="www.devopsbyvikrant.com" 
 ```
 
-This command switches your current user to the root user, allowing you to perform administrative tasks without needing to use `sudo` for each command.
+**Sections Explained**
 
-#### 3. Install Docker and Docker.io
-
-```bash
-apt install docker docker.io
-```
-
-This command installs Docker, a container runtime, which is required for running Minikube. `docker` and `docker.io` are package names for Docker on Ubuntu.
-
-#### 4. Install curl and wget Utilities
-
-```bash
-apt install curl wget
-```
-
-This command installs `curl` and `wget`, which are utilities for downloading files from the internet.
-
-#### 5. Download and Install Minikube
-
-```bash
-curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
-sudo dpkg -i minikube_latest_amd64.deb
-```
-These commands download the latest Minikube Debian package and install it on your system. Minikube is a tool that makes it easy to run a local Kubernetes cluster.
-
-#### 6. Start Minikube Cluster
-
-```bash
-minikube start --driver=docker --force
-```
-
-This command starts a Minikube cluster using Docker as the driver. The `--force` option is used to bypass any pre-checks and force the cluster to start.
-
-#### 7. Verify Minikube Setup
-
-```bash
-minikube status
-```
-  ![image](https://github.com/user-attachments/assets/f2715c3a-cc3e-48c2-805f-123b071502aa)
-
-### Step 2: Install kubectl to Interact with the Cluster
-
-#### 1. Install kubectl using snap utility
-
-```bash
-snap install kubectl --classic
-```
-
-This command installs `kubectl` using Snap with the `--classic` option, which gives it full access to system resources. `kubectl` is the command-line tool for interacting with Kubernetes clusters.
-
-#### 2. Verify the kubectl Installation
-
-```bash
-kubectl cluster-info
-```
-![image](https://github.com/user-attachments/assets/f9403856-4e18-403a-b955-59c3a85ca9a8)
+`[all]`: Defines a group called all, which includes all hosts in the inventory.
 
 
-These commands verify that `kubectl` is installed correctly and can communicate with the Kubernetes cluster. `kubectl cluster-info` displays information about the cluster, and `kubectl get pods -A` lists all the pods in all namespaces.
+`192.168.1.15`: Defines a host with the IP address 192.168.1.15.
 
-### Step 3: Install Helm
 
-#### 1. Install Helm using snap
+`ingress_host="www.devopsbyvikrant.com"`: Sets a host variable named ingress_host with the value "www.devopsbyvikrant.com". This variable can be used within your playbook to configure settings related to the ingress host.
 
-```bash
-snap install helm --classic
-```
-This command installs Helm using Snap with the `--classic` option. Helm is a package manager for Kubernetes, which helps in deploying and managing applications on the cluster.
 
-#### 2. Verify Helm installation
-```bash
-helm version
-```
-![image](https://github.com/user-attachments/assets/59282092-094e-437e-8e26-bfd959a124f7)
+### 3. Create `playbook.yml`
 
-### Conclusion
-
-By following these steps, you can set up a local Kubernetes cluster using Minikube, install `kubectl` to interact with the cluster, and install Helm for managing applications. This setup provides a robust environment for learning and experimenting with Kubernetes.
-
--------
-
-## Part II: Nginx Ingress Controller Deployment with Helm
-
-This guide explains how to set up Nginx Ingress Controller on a Kubernetes cluster using Helm. Ingress Nginx is an Ingress controller that manages access to your Kubernetes services from outside the Kubernetes cluster.
-
-### Prerequisites
-
-- Kubernetes/Minikube cluster
-- Helm installed and configured
-
-### Commands Explanation
-
-#### 1. Add Ingress Nginx Helm Repository
-
-```bash
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-```
-
-This command adds the Ingress Nginx Helm repository to your local Helm client. The repository contains the necessary charts to deploy Ingress Nginx.
-
-#### 2. Update Helm Repositories
-
-```bash
-helm repo update
-```
-
-This command updates your local Helm repository cache with the latest charts available in the remote repositories. It ensures that you have access to the most recent versions of the charts.
-
-#### 3. Install or Upgrade Ingress Nginx
-
-```bash
-helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
-  --namespace ingress-nginx --create-namespace \
-  --set controller.kind=DaemonSet \
-  --set controller.hostPort.enabled=true \
-  --set controller.ingressClass=nginx
-```
-
-This command installs or upgrades the Ingress Nginx controller using Helm. Here’s a breakdown of the options used:
-
-- `upgrade --install`: This command will upgrade the release if it already exists or install it if it does not.
-- `ingress-nginx`: This is the name of the release.
-- `ingress-nginx/ingress-nginx`: Specifies the chart to install. The first part is the repository name, and the second part is the chart name.
-- `--namespace ingress-nginx`: Specifies the namespace in which to install the Ingress Nginx controller. If the namespace does not exist, it will be created.
-- `--create-namespace`: This option creates the namespace if it does not already exist.
-- `--set controller.kind=DaemonSet`: This sets the Ingress Nginx controller to run as a DaemonSet, ensuring that a pod is running on each node.
-- `--set controller.hostPort.enabled=true`: This enables the use of host ports for the Ingress Nginx controller, allowing it to bind to the host’s network interface.
-- `--set controller.ingressClass=nginx`: This sets the ingress class to `nginx`, which is used to differentiate between multiple ingress controllers.
-
-#### 3. Verify the Nginx Ingress Controller Setup
-
-```bash
-kubectl get all -n ingress-nginx
-```
-
-![image](https://github.com/user-attachments/assets/5cfe1f18-fb53-4890-942d-852c502ddc9d)
-
-### Conclusion
-
-By following these steps, you can successfully deploy the Ingress Nginx controller on your Kubernetes cluster using Helm. This setup provides a reliable and efficient way to manage external access to your Kubernetes services.
-
--------------------------------------------------
-
-## Part III: Hello World Application Deployment
-
-This repository contains the YAML files required to deploy a simple "Hello World" application on a Kubernetes cluster. The deployment consists of a Deployment, a Service, and an Ingress resource.
-
-### Deployment
-
-The `deployment-hello-world.yaml` file defines a Kubernetes Deployment for the "Hello World" application.
+Here is the content of the playbook file named `playbook.yml`:
 
 ```yaml
 apiVersion: apps/v1
@@ -199,202 +118,7 @@ spec:
         image: gcr.io/google-samples/hello-app:1.0
 ```
 
-### Service
+### 4. Create roles, tasks and main.yml in respective folder.
 
-The `service-hello-world.yaml` file defines a Kubernetes Service to expose the "Hello World" application.
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: hello-world-svc
-  namespace: hello-world
-spec:
-  selector:
-    app: hello-world
-  ports:
-  - port: 80
-    targetPort: 8080
-```
-
-### Ingress
-
-The `ingress-hello-world.yaml` file defines a Kubernetes Ingress to route external traffic to the "Hello World" application.
-
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.class: nginx
-  name: hello-world-ingress
-  namespace: hello-world
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: www.devopsbyvikrant.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: hello-world-svc
-            port:
-              number: 80
-```
-
-### Usage
-
-To deploy the "Hello World" application, follow these steps:
-
-1. **Create the Namespace**:
-    ```bash
-    kubectl create namespace hello-world
-    ```
-
-2. **Apply the Deployment**:
-    ```bash
-    kubectl apply -f deployment-hello-world.yaml
-    ```
-
-3. **Apply the Service**:
-    ```bash
-    kubectl apply -f service-hello-world.yaml
-    ```
-
-4. **Apply the Ingress**:
-    ```bash
-    kubectl apply -f ingress-hello-world.yaml
-    ```
-
-### Verification
-
-After applying the YAML files, you can verify the deployment by checking the status of the pods, service, and ingress:
-
-1. **Check Pods**:
-    ```bash
-    kubectl get pods -n hello-world
-    ```
-   ![image](https://github.com/user-attachments/assets/0b4c1106-d25b-4acb-9fb8-e5f74b12513c)
-
-2. **Check Service**:
-    ```bash
-    kubectl get svc -n hello-world
-    ```
-    ![image](https://github.com/user-attachments/assets/36028ed1-822a-49b7-a8e2-b98752af8e48)
-
-
-3. **Check Ingress**:
-    ```bash
-    kubectl get ingress -n hello-world
-    ```
-    ![image](https://github.com/user-attachments/assets/b67e0e68-28be-4cf5-bba4-ffc139a78102)
-
-
-Visit `http://www.devopsbyvikrant.com` in your browser to see the "Hello World" application.
-![image](https://github.com/user-attachments/assets/da54cd20-62dd-408d-af4e-8f9a20e024bb)
-
-
--------------------------------------------------
-
-## Part IV: Setting up ssl tls for Hello World Deployment
-
-To implement TLS termination at the NGINX ingress using a self-signed certificate, follow these steps:
-
-### 1. Create a self-signed certificate and key
-
-Generate a self-signed certificate and key using OpenSSL:
-
-```bash
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=www.devopsbyvikrant.com/O=vikrant"
-```
-This command creates tls.crt and tls.key files.
-
-### 2. Create a Kubernetes secret to store the certificate and key
-Create a Kubernetes secret using the generated certificate and key:
-```bash
-kubectl create secret tls hello-world-tls --cert=tls.crt --key=tls.key -n hello-world
-```
-
-### 3. Update the Ingress yaml 
-
-The `ingress-tls-hello-world.yaml` file defines a Kubernetes Ingress to route external traffic to the "Hello World" application.
-
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.class: nginx
-  name: hello-world-ingress
-  namespace: hello-world
-spec:
-  ingressClassName: nginx
-  tls:
-  - hosts:
-    - www.devopsbyvikrant.com
-    secretName: hello-world-tls
-  rules:
-  - host: www.devopsbyvikrant.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: hello-world-svc
-            port:
-              number: 80
-```
-### 4. Apply changes to ingress 
-    ```bash
-    kubectl apply -f ingress-tls-hello-world.yaml
-    ```
-### 5. Verify using browser or curl
-    ```bash
-    curl -k https://www.devopsbyvikrant.com
-    ```
-  ![image](https://github.com/user-attachments/assets/090f9433-170d-4846-8656-8349d6c2346f)
-
-
-### Cleanup
-
-To remove the deployed resources, you can delete them using the following commands:
-
-```bash
-kubectl delete -f ingress-hello-world.yaml
-kubectl delete -f service-hello-world.yaml
-kubectl delete -f deployment-hello-world.yaml
-kubectl delete namespace hello-world
-```
-
-### Troubleshooting
-
-If you encounter any issues, try the following troubleshooting steps:
-
-1. **DNS Issues**:
-    If you are unable to access the application via the provided hostname, ensure that the DNS settings are correctly configured and that the hostname resolves to the correct IP address.
-    Follow workaround in minikube host server:
-    ```sh
-    echo "$(minikube ip) www.devopsbyvikant.com" >> /etc/hosts
-    curl -k http://www.devopsbyvikant.com
-    ```
-    ![image](https://github.com/user-attachments/assets/96f5b692-c40d-434f-b431-f115706dad70)
-
-2. **Describe Resources**:
-    ```sh
-    kubectl describe pod <pod-name> -n hello-world
-    kubectl describe svc hello-world-svc -n hello-world
-    kubectl describe ingress hello-world-ingress -n hello-world
-    ```
-    These commands provide detailed information about the specified resources, which can help in diagnosing issues.
-
-3. **Check Ingress Controller Logs**:
-    If you are using an NGINX ingress controller, check its logs for any errors:
-    ```sh
-    kubectl logs <nginx-ingress-controller-pod> -n ingress-nginx
-    ```
-4. **Validate YAML Files**:
-    Ensure that the YAML files are correctly formatted and do not contain any syntax errors. You can use tools like `kubectl apply --dry-run=client -f <file>` to validate the files.
+  ![image](https://github.com/user-attachments/assets/a802e883-0ff8-4cb8-85a4-610f3da69c19)
 

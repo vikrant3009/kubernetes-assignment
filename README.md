@@ -166,3 +166,173 @@ kubectl get all -n ingress-nginx
 
 By following these steps, you can successfully deploy the Ingress Nginx controller on your Kubernetes cluster using Helm. This setup provides a reliable and efficient way to manage external access to your Kubernetes services.
 
+-------------------------------------------------
+
+## Part III: Hello World Application Deployment
+
+This repository contains the YAML files required to deploy a simple "Hello World" application on a Kubernetes cluster. The deployment consists of a Deployment, a Service, and an Ingress resource.
+
+### Deployment
+
+The `deployment-hello-world.yaml` file defines a Kubernetes Deployment for the "Hello World" application.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-deployment
+  namespace: hello-world
+  labels:
+    app: hello-world
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-world
+  template:
+    metadata:
+      labels:
+        app: hello-world
+    spec:
+      containers:
+      - name: hello-world
+        image: gcr.io/google-samples/hello-app:1.0
+```
+
+### Service
+
+The `service-hello-world.yaml` file defines a Kubernetes Service to expose the "Hello World" application.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world-svc
+  namespace: hello-world
+spec:
+  selector:
+    app: hello-world
+  ports:
+  - port: 80
+    targetPort: 8080
+```
+
+### Ingress
+
+The `ingress-hello-world.yaml` file defines a Kubernetes Ingress to route external traffic to the "Hello World" application.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: hello-world-ingress
+  namespace: hello-world
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: www.devopsbyvikrant.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hello-world-svc
+            port:
+              number: 80
+```
+
+### Usage
+
+To deploy the "Hello World" application, follow these steps:
+
+1. **Create the Namespace**:
+    ```bash
+    kubectl create namespace hello-world
+    ```
+
+2. **Apply the Deployment**:
+    ```bash
+    kubectl apply -f deployment-hello-world.yaml
+    ```
+
+3. **Apply the Service**:
+    ```bash
+    kubectl apply -f service-hello-world.yaml
+    ```
+
+4. **Apply the Ingress**:
+    ```bash
+    kubectl apply -f ingress-hello-world.yaml
+    ```
+
+### Verification
+
+After applying the YAML files, you can verify the deployment by checking the status of the pods, service, and ingress:
+
+1. **Check Pods**:
+    ```bash
+    kubectl get pods -n hello-world
+    ```
+   ![image](https://github.com/user-attachments/assets/0b4c1106-d25b-4acb-9fb8-e5f74b12513c)
+
+2. **Check Service**:
+    ```bash
+    kubectl get svc -n hello-world
+    ```
+    ![image](https://github.com/user-attachments/assets/36028ed1-822a-49b7-a8e2-b98752af8e48)
+
+
+3. **Check Ingress**:
+    ```bash
+    kubectl get ingress -n hello-world
+    ```
+    ![image](https://github.com/user-attachments/assets/b67e0e68-28be-4cf5-bba4-ffc139a78102)
+
+
+Visit `http://www.devopsbyvikrant.com` in your browser to see the "Hello World" application.
+![image](https://github.com/user-attachments/assets/da54cd20-62dd-408d-af4e-8f9a20e024bb)
+
+
+### Cleanup
+
+To remove the deployed resources, you can delete them using the following commands:
+
+```bash
+kubectl delete -f ingress-hello-world.yaml
+kubectl delete -f service-hello-world.yaml
+kubectl delete -f deployment-hello-world.yaml
+kubectl delete namespace hello-world
+```
+
+### Troubleshooting
+
+If you encounter any issues, try the following troubleshooting steps:
+
+5. **DNS Issues**:
+    If you are unable to access the application via the provided hostname, ensure that the DNS settings are correctly configured and that the hostname resolves to the correct IP address.
+    Follow workaround in minikube host server:
+    ```sh
+    echo "$(minikube ip) www.devopsbyvikant.com" >> /etc/hosts
+    curl -k http://www.devopsbyvikant.com
+    ```
+    ![image](https://github.com/user-attachments/assets/96f5b692-c40d-434f-b431-f115706dad70)
+
+2. **Describe Resources**:
+    ```sh
+    kubectl describe pod <pod-name> -n hello-world
+    kubectl describe svc hello-world-svc -n hello-world
+    kubectl describe ingress hello-world-ingress -n hello-world
+    ```
+    These commands provide detailed information about the specified resources, which can help in diagnosing issues.
+
+3. **Check Ingress Controller Logs**:
+    If you are using an NGINX ingress controller, check its logs for any errors:
+    ```sh
+    kubectl logs <nginx-ingress-controller-pod> -n <ingress-controller-namespace>
+    ```
+4. **Validate YAML Files**:
+    Ensure that the YAML files are correctly formatted and do not contain any syntax errors. You can use tools like `kubectl apply --dry-run=client -f <file>` to validate the files.
+

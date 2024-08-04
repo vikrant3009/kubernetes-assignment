@@ -1,49 +1,100 @@
 
-# Kuberentes Assignment
+# Kubernetes Cluster Setup - Installation of Minikube, Kubectl and Helm
 
-This is the assignment given by Ashnik Technologies to for the role of Kubernetes & Nginx Specialist.
+This guide explains how to set up a Kubernetes cluster using Minikube, how to install `kubectl` to interact with the cluster, and how to install Helm for managing Kubernetes applications.
 
+## Prerequisites
 
-## 1. Kubernetes Cluster Setup: Installation of minikube
+- Ubuntu system with sudo privileges
+- Internet connection
 
-Update packages
+## Step 1: Kubernetes Cluster Setup - Installation of Minikube
+
+### 1. Update Packages
+
 ```bash
-  sudo apt update
+sudo apt update
 ```
-Login to root
+
+This command updates the package lists on your system to ensure you have the latest information on the newest versions of packages and their dependencies.
+
+### 2. Login to Root
+
 ```bash
-  sudo su -
+sudo su -
 ```
-Install docker and docker.io
+
+This command switches your current user to the root user, allowing you to perform administrative tasks without needing to use `sudo` for each command.
+
+### 3. Install Docker and Docker.io
+
 ```bash
-  apt install docker docker.io
+apt install docker docker.io
 ```
-Install curtl and wget utilities
+
+This command installs Docker, a container runtime, which is required for running Minikube. `docker` and `docker.io` are package names for Docker on Ubuntu.
+
+### 4. Install curl and wget Utilities
+
 ```bash
-  apt install curl wget
+apt install curl wget
 ```
-Download and install Minikube
+
+This command installs `curl` and `wget`, which are utilities for downloading files from the internet.
+
+### 5. Download and Install Minikube
+
 ```bash
-  curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
-  sudo dpkg -i minikube_latest_amd64.deb
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+sudo dpkg -i minikube_latest_amd64.deb
 ```
-Start minikube cluster
+These commands download the latest Minikube Debian package and install it on your system. Minikube is a tool that makes it easy to run a local Kubernetes cluster.
+
+### 6. Start Minikube Cluster
+
 ```bash
-  minikube start --driver=docker --force
+minikube start --driver=docker --force
 ```
-## 2. Install kubectl to interact with cluster
-use classic snap to install kubectl
+
+This command starts a Minikube cluster using Docker as the driver. The `--force` option is used to bypass any pre-checks and force the cluster to start.
+
+### 7. Verify Minikube Setup
+
 ```bash
-  snap install kubectl --classic
+minikube status
 ```
-Verify the installation
+  ![image](https://github.com/user-attachments/assets/f2715c3a-cc3e-48c2-805f-123b071502aa)
+
+## Step 2: Install kubectl to Interact with the Cluster
+
+### 1. Install kubectl using snap utility
+
 ```bash
-  kubectl cluster-info
-  kubectl get pods -A
+snap install kubectl --classic
 ```
-## 3. Install Helm
-use classic snap to install helm
+
+This command installs `kubectl` using Snap with the `--classic` option, which gives it full access to system resources. `kubectl` is the command-line tool for interacting with Kubernetes clusters.
+
+### 2. Verify the Installation
+
 ```bash
-  snap install helm --classic
+kubectl cluster-info
+kubectl get pods -A
 ```
+
+These commands verify that `kubectl` is installed correctly and can communicate with the Kubernetes cluster. `kubectl cluster-info` displays information about the cluster, and `kubectl get pods -A` lists all the pods in all namespaces.
+
+## Step 3: Install Helm
+
+### 1. Install Helm using snap
+
+```bash
+snap install helm --classic
+```
+
+This command installs Helm using Snap with the `--classic` option. Helm is a package manager for Kubernetes, which helps in deploying and managing applications on the cluster.
+
+## Conclusion
+
+By following these steps, you can set up a local Kubernetes cluster using Minikube, install `kubectl` to interact with the cluster, and install Helm for managing applications. This setup provides a robust environment for learning and experimenting with Kubernetes.
 
